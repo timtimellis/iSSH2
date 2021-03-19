@@ -1,5 +1,11 @@
 tmp
 openssl*
+libssl*
+libcrypto*
 libssh2*
 libressl*
 .DS_Store
+
+!libssl.modulemap
+!libcrypto.modulemap
+!libssh2.modulemap
