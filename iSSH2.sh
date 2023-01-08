@@ -98,7 +98,7 @@ usageHelp () {
   echo "      --no-bitcode          don't embed bitcode"
   echo "  -h, --help                display this help and exit"
   echo
-  echo "Valid platforms: iphoneos, macosx, appletvos, watchos"
+  echo "Valid platforms: iphoneos, iphonesimulator, macosx, appletvos, watchos"
   echo
   echo "Xcodeproj and target or platform and min version must be set."
   echo
@@ -193,43 +193,28 @@ if [[ -z "$MIN_VERSION" ]]; then
   exit 1
 fi
 
-if [[  "$SDK_PLATFORM" == "macosx" ]] || [[ "$SDK_PLATFORM" == "iphoneos" ]] || [[ "$SDK_PLATFORM" == "appletvos" ]] || [[ "$SDK_PLATFORM" == "watchos" ]]; then
+if [[  "$SDK_PLATFORM" == "macosx" ]] || [[ "$SDK_PLATFORM" == "iphoneos" ]] || [[ "$SDK_PLATFORM" == "iphonesimulator" ]] || [[ "$SDK_PLATFORM" == "appletvos" ]] || [[ "$SDK_PLATFORM" == "watchos" ]]; then
   if [[ -z "$ARCHS" ]]; then
     ARCHS="$TARGET_ARCHS"
 
     if [[ "$SDK_PLATFORM" == "macosx" ]]; then
       if [[ -z "$ARCHS" ]]; then
-        ARCHS="x86_64"
-
-        if [[ $(version "$XCODE_VERSION") < $(version "10.0") ]]; then
-          ARCHS="$ARCHS i386"
-        fi
+        ARCHS="arm64 arm64e x86_64"
       fi
     elif [[ "$SDK_PLATFORM" == "iphoneos" ]]; then
       if [[ -z "$ARCHS" ]]; then
-        ARCHS="arm64"
-
-        if [[ $(version "$XCODE_VERSION") == $(version "10.1") ]] || [[ $(version "$XCODE_VERSION") > $(version "10.1") ]]; then
-          ARCHS="$ARCHS arm64e"
-        fi
-
-        if [[ $(version "$MIN_VERSION") < $(version "10.0") ]]; then
-          ARCHS="$ARCHS armv7 armv7s"
-        fi
-        if [[ $(version "$XCODE_VERSION") -ge $(version "12.0") ]]; then
-          ARCHS="$ARCHS arm64"
-        fi
+        ARCHS="arm64 arm64e x86_64"
       fi
-
-      ARCHS="$ARCHS x86_64"
-
-      if [[ $(version "$MIN_VERSION") < $(version "10.0") ]]; then
-        ARCHS="$ARCHS i386"
+    elif [[ "$SDK_PLATFORM" == "iphonesimulator" ]]; then
+      if [[ -z "$ARCHS" ]]; then
+        ARCHS="arm64 arm64e x86_64"
       fi
     elif [[ "$SDK_PLATFORM" == "appletvos" ]]; then
-      ARCHS="$ARCHS arm64 x86_64"
+      if [[ -z "$ARCHS" ]]; then
+        ARCHS="$ARCHS arm64 x86_64"
+      fi
     elif [[ "$SDK_PLATFORM" == "watchos" ]]; then
-      ARCHS="$ARCHS i386 armv7k"
+      ARCHS="$ARCHS armv7k"
 
       if [[ $(version "$XCODE_VERSION") == $(version "10.0") ]] || [[ $(version "$XCODE_VERSION") > $(version "10.0") ]]; then
         ARCHS="$ARCHS arm64_32"
