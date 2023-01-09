@@ -1,7 +1,8 @@
 # iSSH2
 
-iSSH2 is a bash script for compiling Libssh2 (and OpenSSL) for iOS, macOS, watchOS and tvOS.
+iSSH2 is a bash script for compiling Libssh, Libssh2 and OpenSSL for iOS, macOS, watchOS and tvOS.
 
+- Libssh: [Website](https://www.libssh.org/) | [Documentation](https://api.libssh.org/)
 - Libssh2: [Website](http://www.libssh2.org) | [Documentation](http://www.libssh2.org/docs.html) | [Changelog](http://www.libssh2.org/changes.html)
 - OpenSSL: [Website](http://www.openssl.org) | [Documentation](http://www.openssl.org/docs/) | [Changelog](http://www.openssl.org/news/)
 
@@ -27,6 +28,9 @@ iSSH2 is a bash script for compiling Libssh2 (and OpenSSL) for iOS, macOS, watch
 - Architectures: arm64 arm64e x86_64
 
 ## How to use
+
+First download and install Cmake [from here](https://cmake.org/download/) and set up
+your PATH environment variable to contain /Applications/CMake.app/Contents/bin
 
 1. Download the script
 2. Run ./build.sh

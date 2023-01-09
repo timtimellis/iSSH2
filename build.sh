@@ -62,7 +62,7 @@ rm -rf *.xcframework openssl_* libssh_* libssh2_* libssl_* $TMPDIR/iSSH2
 
 # iphoneos
 
-./iSSH2.sh --platform=iphoneos --min-version=14 --openssl=3.0.7 -a "arm64" --no-clean
+./iSSH2.sh --platform=iphoneos --min-version=14 -a "arm64" --no-clean
 
 composeFramework "libssl" "openssl_iphoneos/include/openssl/*.h" \
 	"openssl_iphoneos/lib/libssl.a" "iphoneos" "org.openssl.libssl"
@@ -78,7 +78,7 @@ composeFramework "libssh" "libssh_iphoneos/include/*.h" \
 
 # iphonesimulator
 
-./iSSH2.sh --platform=iphonesimulator --min-version=14 --openssl=3.0.7 -a "arm64 x86_64" --no-clean
+./iSSH2.sh --platform=iphonesimulator --min-version=14 -a "arm64 x86_64" --no-clean
 
 composeFramework "libssl" "openssl_iphonesimulator/include/openssl/*.h" \
 	"openssl_iphonesimulator/lib/libssl.a" "iphonesimulator" "org.openssl.libssl"
@@ -94,7 +94,7 @@ composeFramework "libssh" "libssh_iphonesimulator/include/*.h" \
 
 # macOS
 
-./iSSH2.sh --platform=macosx --min-version=11.0 --openssl=3.0.7 -a "arm64 x86_64" --no-clean
+./iSSH2.sh --platform=macosx --min-version=11.0 -a "arm64 x86_64" --no-clean
 
 composeFramework "libssl" "openssl_macosx/include/openssl/*.h" \
 	"openssl_macosx/lib/libssl.a" "macosx" "org.openssl.libssl"
