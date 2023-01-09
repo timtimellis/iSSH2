@@ -2,6 +2,7 @@ tmp
 openssl*
 libssl*
 libcrypto*
+libssh*
 libssh2*
 libressl*
 .DS_Store

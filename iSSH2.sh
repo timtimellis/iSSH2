@@ -30,7 +30,7 @@ export SCRIPTNAME="iSSH2"
 cleanupFail () {
   if $1; then
     >&2 echo "Build failed, cleaning up temporary files..."
-    rm -rf "$LIBSSLDIR/src/" "$LIBSSLDIR/tmp/" "$LIBSSHDIR/src/" "$LIBSSHDIR/tmp/"
+    rm -rf "$LIBSSLDIR/src/" "$LIBSSLDIR/tmp/" "$LIBSSHDIR/src/" "$LIBSSHDIR/tmp/" "$LIBSSH1DIR/src/" "$LIBSSH1DIR/tmp/"
   else
     >&2 echo "Build failed, temporary files location: $TEMPPATH"
   fi
@@ -70,6 +70,18 @@ getOpensslVersion () {
   fi
 }
 
+getLibsshVersion () {
+  if type git >/dev/null 2>&1; then
+    LIBSSH1_VERSION=`git ls-remote --tags https://git.libssh.org/projects/libssh.git/ | egrep -E "libssh-[0-9]+\.[1-9][0-9]+\.\d+$" -o | egrep -E -o "\d+\.\d+\.\d+$" | sort -r -t . | head -n 1`
+    LIBSSH1_AUTO=true
+  else
+    >&2 echo "Install git to automatically get the latest Libssh version or use the --libssh argument"
+    >&2 echo
+    >&2 echo "Try '$SCRIPTNAME --help' for more information."
+    exit 2
+  fi
+}
+
 getBuildSetting () {
   echo "${1}" | grep -i "^\s*${2}\s*=\s*" | cut -d= -f2 | xargs echo -n
 }
@@ -89,6 +101,7 @@ usageHelp () {
   echo "  -p, --platform=PLATFORM   build for PLATFORM platform"
   echo "  -v, --min-version=VERS    set platform minimum version to VERS"
   echo "  -s, --sdk-version=VERS    use SDK version VERS"
+  echo "  -L, --libssh=VERS         download and build Libssh version VERS"
   echo "  -l, --libssh2=VERS        download and build Libssh2 version VERS"
   echo "  -o, --openssl=VERS        download and build OpenSSL version VERS"
   echo "  -x, --xcodeproj=PATH      get info from the project (requires TARGET)"
@@ -108,6 +121,7 @@ usageHelp () {
 #Config
 
 export SDK_VERSION=
+export LIBSSH1_VERSION=
 export LIBSSH_VERSION=
 export LIBSSL_VERSION=
 export MIN_VERSION=
@@ -129,6 +143,7 @@ while getopts 'a:p:l:o:v:s:x:t:h-' OPTION ; do
     p) SDK_PLATFORM="$OPTARG" ;;
     v) MIN_VERSION="$OPTARG" ;;
     s) SDK_VERSION="$OPTARG" ;;
+    L) LIBSSH1_VERSION="$OPTARG" ;;
     l) LIBSSH_VERSION="$OPTARG" ;;
     o) LIBSSL_VERSION="$OPTARG" ;;
     x) XCODE_PROJECT="$OPTARG" ;;
@@ -141,6 +156,7 @@ while getopts 'a:p:l:o:v:s:x:t:h-' OPTION ; do
          --archs) ARCHS="$OPTARG" ;;
          --platform) SDK_PLATFORM="$OPTARG" ;;
          --openssl) LIBSSL_VERSION="$OPTARG" ;;
+         --libssh) LIBSSH1_VERSION="$OPTARG" ;;
          --libssh2) LIBSSH_VERSION="$OPTARG" ;;
          --sdk-version) SDK_VERSION="$OPTARG" ;;
          --min-version) MIN_VERSION="$OPTARG" ;;
@@ -229,6 +245,11 @@ fi
 
 ARCHS="$(echo "$ARCHS" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
 
+LIBSSH1_AUTO=false
+if [[ -z "$LIBSSH1_VERSION" ]]; then
+  getLibsshVersion
+fi
+
 LIBSSH_AUTO=false
 if [[ -z "$LIBSSH_VERSION" ]]; then
   getLibssh2Version
@@ -254,9 +275,17 @@ export DEVELOPER=`xcode-select --print-path`
 export BASEPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export TEMPPATH="$TMPDIR$SCRIPTNAME"
 export LIBSSLDIR="$TEMPPATH/openssl-$LIBSSL_VERSION"
+export LIBSSH1DIR="$TEMPPATH/libssh-$LIBSSH1_VERSION"
 export LIBSSHDIR="$TEMPPATH/libssh2-$LIBSSH_VERSION"
 
 #Env
+
+echo
+if [[ $LIBSSH1_AUTO == true ]]; then
+  echo "Libssh version: $LIBSSH1_VERSION (Automatically detected)"
+else
+  echo "Libssh version: $LIBSSH1_VERSION"
+fi
 
 echo
 if [[ $LIBSSH_AUTO == true ]]; then
@@ -289,6 +318,10 @@ set -e
 
 if [[ $BUILD_SSL == true ]]; then
   "$BASEPATH/iSSH2-openssl.sh" || cleanupFail $CLEAN_BUILD
+fi
+
+if [[ $BUILD_SSH == true ]]; then
+  "$BASEPATH/iSSH2-libssh.sh" || cleanupFail $CLEAN_BUILD
 fi
 
 if [[ $BUILD_SSH == true ]]; then

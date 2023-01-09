@@ -11,8 +11,8 @@ composeFramework() {
 
 	mkdir -p $framework_path/Headers
 
-	mv $headers $framework_path/Headers/
-	mv $lib $framework_path/$framework
+	cp -RL $headers $framework_path/Headers/
+	cp -RL $lib $framework_path/$framework
 
 	cp Info.plist $framework_path/
 
@@ -58,11 +58,11 @@ generateModuleMap() {
 	echo "}" >> $module_map
 }
 
-rm -r *.xcframework
+rm -rf *.xcframework openssl_* libssh_* libssh2_* libssl_* $TMPDIR/iSSH2
 
 # iphoneos
 
-./iSSH2.sh --platform=iphoneos --min-version=14 -a "arm64" --no-clean
+./iSSH2.sh --platform=iphoneos --min-version=14 --openssl=3.0.7 -a "arm64" --no-clean
 
 composeFramework "libssl" "openssl_iphoneos/include/openssl/*.h" \
 	"openssl_iphoneos/lib/libssl.a" "iphoneos" "org.openssl.libssl"
@@ -73,9 +73,12 @@ composeFramework "libcrypto" "openssl_iphoneos/include/crypto/*.h" \
 composeFramework "libssh2" "libssh2_iphoneos/include/*.h" \
 	"libssh2_iphoneos/lib/libssh2.a" "iphoneos" "org.libssh2.libssh2"
 
+composeFramework "libssh" "libssh_iphoneos/include/*.h" \
+	"libssh_iphoneos/lib/libssh.a" "iphoneos" "org.libssh.libssh"
+
 # iphonesimulator
 
-./iSSH2.sh --platform=iphonesimulator --min-version=14 -a "arm64 arm64e x86_64" --no-clean
+./iSSH2.sh --platform=iphonesimulator --min-version=14 --openssl=3.0.7 -a "arm64 x86_64" --no-clean
 
 composeFramework "libssl" "openssl_iphonesimulator/include/openssl/*.h" \
 	"openssl_iphonesimulator/lib/libssl.a" "iphonesimulator" "org.openssl.libssl"
@@ -86,9 +89,12 @@ composeFramework "libcrypto" "openssl_iphonesimulator/include/crypto/*.h" \
 composeFramework "libssh2" "libssh2_iphonesimulator/include/*.h" \
 	"libssh2_iphonesimulator/lib/libssh2.a" "iphonesimulator" "org.libssh2.libssh2"
 
+composeFramework "libssh" "libssh_iphonesimulator/include/*.h" \
+	"libssh_iphonesimulator/lib/libssh.a" "iphonesimulator" "org.libssh.libssh"
+
 # macOS
 
-./iSSH2.sh --platform=macosx --min-version=11.0 -a "arm64 x86_64" --no-clean
+./iSSH2.sh --platform=macosx --min-version=11.0 --openssl=3.0.7 -a "arm64 x86_64" --no-clean
 
 composeFramework "libssl" "openssl_macosx/include/openssl/*.h" \
 	"openssl_macosx/lib/libssl.a" "macosx" "org.openssl.libssl"
@@ -98,6 +104,9 @@ composeFramework "libcrypto" "openssl_macosx/include/crypto/*.h" \
 
 composeFramework "libssh2" "libssh2_macosx/include/*.h" \
 	"libssh2_macosx/lib/libssh2.a" "macosx" "org.libssh2.libssh2"
+
+composeFramework "libssh" "libssh_macosx/include/*.h" \
+	"libssh_macosx/lib/libssh.a" "macosx" "org.libssh.libssh"
 
 # xcframeworks
 
@@ -118,5 +127,11 @@ xcodebuild -create-xcframework \
 	-framework iphonesimulator/libssh2.framework \
 	-framework macosx/libssh2.framework \
 	-output libssh2.xcframework
+
+xcodebuild -create-xcframework \
+	-framework iphoneos/libssh.framework \
+	-framework iphonesimulator/libssh.framework \
+	-framework macosx/libssh.framework \
+	-output libssh.xcframework
 
 rm -r iphoneos iphonesimulator macosx

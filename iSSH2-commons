@@ -40,12 +40,35 @@ downloadFile () {
   echo "MD5: $md5"
 }
 
+# This hack is so dirty I had to shower several times and I still do not feel clean
+# It fixes lipo failing due to libssh somehow building arm64 in the x86_64 sim build
+# and probably others
+fixLipoInputs () {
+  local inputs=$1
+
+  for input in $inputs; do
+    lipoarchs=`lipo -archs $input`
+    
+    for lipoarch in $lipoarchs; do
+
+      if [[ "$input" == *"$lipoarch"* ]]; then
+        echo "$lipoarch does not need stripping"
+      else
+        echo "$lipoarch needs stripping"
+	lipo $input -remove $lipoarch -output $input
+      fi
+
+    done
+  done
+}
+
 lipoFatLibrary () {
   local inputs=$1
   local output=$2
   local dirname=`dirname "$2"`
   local filename=`basename "$2"`
 
+  fixLipoInputs "$1"
   echo "Building $filename fat library..."
 
   if [ ! -e "$dirname" ];
@@ -68,6 +91,14 @@ importHeaders () {
   echo "Copying headers..."
   rm -rf "$output"
   mkdir -p "$output"
+  cp -RL "$input" "$output"
+}
+
+importHeaders2 () {
+  local input=$1
+  local output=$2
+    
+  echo "Copying headers..."
   cp -RL "$input" "$output"
 }
 
