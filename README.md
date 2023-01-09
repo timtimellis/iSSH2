@@ -40,6 +40,9 @@ You may optionally perform builds directly using iSSH2.sh as below. Note that if
 do this and change the openssl version to 1.x.x or earlier that libssh probably will
 not build or work.
 
+If you use the libssh framework you probably will need to add zlib (aka libz) from the
+SDK for each platform to each target in your project.
+
 ## Script help
 
 ```
