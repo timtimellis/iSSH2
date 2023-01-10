@@ -91,6 +91,7 @@ do
 
     echo "- $PLATFORM $ARCH done!"
   fi
+  fixLipoInputs "$PLATFORM_OUT/lib/libssh.a" "$ARCH"
 done
 
 lipoFatLibrary "$LIPO_SSH" "$BASEPATH/libssh_$SDK_PLATFORM/lib/libssh.a"

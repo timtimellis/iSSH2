@@ -104,7 +104,10 @@ do
     make -j "$BUILD_THREADS" build_libs >> "$LOG" 2>&1
 
     echo "- $PLATFORM $ARCH done!"
+
+    fixLipoInputs "$OPENSSLDIR/libssl.a $OPENSSLDIR/libcrypto.a" "$ARCH"
   fi
+  
 done
 
 lipoFatLibrary "$LIPO_LIBSSL" "$BASEPATH/openssl_$SDK_PLATFORM/lib/libssl.a"

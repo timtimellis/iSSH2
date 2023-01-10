@@ -45,16 +45,15 @@ downloadFile () {
 # and probably others
 fixLipoInputs () {
   local inputs=$1
+  local arch=$2
 
   for input in $inputs; do
     lipoarchs=`lipo -archs $input`
     
     for lipoarch in $lipoarchs; do
 
-      if [[ "$input" == *"$lipoarch"* ]]; then
-        echo "$lipoarch does not need stripping"
-      else
-        echo "$lipoarch needs stripping"
+      if [[ "$arch" != "$lipoarch" ]]; then
+        echo "Stripping $lipoarch strangely found in build for $arch"
 	lipo $input -remove $lipoarch -output $input
       fi
 
@@ -68,7 +67,6 @@ lipoFatLibrary () {
   local dirname=`dirname "$2"`
   local filename=`basename "$2"`
 
-  fixLipoInputs "$1"
   echo "Building $filename fat library..."
 
   if [ ! -e "$dirname" ];
